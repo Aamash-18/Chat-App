@@ -56,7 +56,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 
 // routes
 app.use("/api/v1/user", userRouter);
