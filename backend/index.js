@@ -3,10 +3,14 @@ import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import userRouter from "./routes/userRouter.js";
 import messageRouter from "./routes/messageRouter.js";
+import groupRouter from "./routes/groupRouter.js";
+import groupMessageRouter from "./routes/groupMessageRouter.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
+import path from "path";
+
 
 dotenv.config();
 const PORT = process.env.PORT || 8080;
@@ -18,20 +22,24 @@ const server = http.createServer(app);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-
+app.use("/uploads", express.static("uploads"));
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  // origin: process.env.CLIENT_URL,
+  origin: true,
   credentials: true,
 }));
 
 // routes
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/message", messageRouter);
+app.use("/api/v1/group", groupRouter);
+app.use("/api/v1/group-message", groupMessageRouter);
 
 // socket.io
 export const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    // origin: process.env.CLIENT_URL,
+    origin:  "*",
     credentials: true,
   },
 });
@@ -49,6 +57,16 @@ io.on("connection", (socket) => {
       userSocketMap[userId]=socket.id;
   }
 
+   // ✅ JOIN GROUP ROOM
+  socket.on("joinGroup", (groupId) => {
+    socket.join(groupId);
+  });
+
+  // ✅ LEAVE GROUP ROOM (optional)
+  socket.on("leaveGroup", (groupId) => {
+    socket.leave(groupId);
+  });
+  
   io.emit('getOnlineUsers',Object.keys(userSocketMap));
   
   socket.on('disconnect',()=>{

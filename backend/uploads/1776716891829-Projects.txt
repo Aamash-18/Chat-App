@@ -1,0 +1,17 @@
+1-> That Solve Real World Problem
+Use AI for Help
+2-> Host One Project to Cloud Also
+3-> idea, design, implementation, deployement
+4-> Live Demo of Each should be avalible
+5-> Ask help in discord community o Akber Shaikh
+
+
+Project:- 
+1- Mern Chat app (20th april)
+2- Ai Powered Learning Assistant (20th Mey)
+3- One DSA Project 
+
+
+
+Practice Projects :
+1) Portfolio

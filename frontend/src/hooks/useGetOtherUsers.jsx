@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setOtherUser } from "../redux/userSlice";
+import { buildUrl } from "../config/api";
 
 const useGetOtherUsers = () => {
   const dispatch = useDispatch();
@@ -12,12 +13,9 @@ const useGetOtherUsers = () => {
 
     const fetchOtherUsers = async () => {
       try {
-        const res = await axios.get(
-          "https://mern-chat-app-0neo.onrender.com/api/v1/user/",
-          {
-            withCredentials: true,
-          },
-        );
+        const res = await axios.get(buildUrl("/api/v1/user/"), {
+          withCredentials: true,
+        });
 
         dispatch(setOtherUser(res.data));
       } catch (err) {

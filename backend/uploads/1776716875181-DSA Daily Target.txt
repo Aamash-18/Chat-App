@@ -1,0 +1,17 @@
+15- Recursion
+16- Recursion + Bit Manupulation
+17+ 18 - Stack and Queue
+19- Sliding Window
+20 + 21- heap
+22+ 23 - Greedy
+24 + 25 :- Binary Tree
+26 + 27 :- Binary Search Tree
+28-2 :- Graph
+3-15 :- DP
+16,17 :- Tries
+18,19 :- Strings Hard
+
+
+-> Daily POTD
+-> Weekly and Biweekly Contest
+-> CodeForces and CodeChef Contest

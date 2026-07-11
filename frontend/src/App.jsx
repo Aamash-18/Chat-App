@@ -11,6 +11,7 @@ import io from "socket.io-client";
 import { setOnlineUser } from "./redux/userSlice";
 import { setSocket } from "./redux/socketSlice";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { API_BASE_URL } from "./config/api";
 
 // creating router
 const router = createBrowserRouter([
@@ -38,7 +39,7 @@ function App() {
   const { authUser, onlineUser } = useSelector((store) => store.user);
   useEffect(() => {
     if (authUser) {
-      const socket = io("https://mern-chat-app-0neo.onrender.com", {
+      const socket = io(API_BASE_URL, {
         query: {
           userId: authUser._id,
         },
@@ -52,7 +53,7 @@ function App() {
   }, [authUser, dispatch]);
   return (
     <>
-      <div className="h-screen p-4 flex items-center justify-center ">
+      <div className="h-screen flex items-center justify-center ">
         <RouterProvider router={router} />
       </div>
     </>

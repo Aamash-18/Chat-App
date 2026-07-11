@@ -8,6 +8,7 @@ const OtherUser = (props) => {
   const { selectedUser, onlineUser } = useSelector((store) => store.user);
   const selectedUserHandler = (user) => {
     dispatch(setSelectedUser(user));
+    props.closeSidebar?.();
   };
 
   const isOnline = onlineUser?.includes(user?._id);

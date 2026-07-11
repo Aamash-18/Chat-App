@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
+import { buildUrl } from "../config/api";
 function Login() {
   const [user, setUser] = useState({
     username: "",
@@ -15,17 +16,13 @@ function Login() {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "https://mern-chat-app-0neo.onrender.com/api/v1/user/login",
-        user,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
+      const res = await axios.post(buildUrl("/api/v1/user/login"), user, {
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
-
+        withCredentials: true,
+      });
+      console.log("Login clicked");
       console.log(res);
       if (res.data.success) {
         navigate("/");
@@ -33,7 +30,7 @@ function Login() {
         console.log(res.data);
         dispatch(setAuthUser(res.data));
       } else {
-        // toast(res.data.message);
+        toast(res.data.message);
       }
     } catch (err) {
       toast.error(err.response.data.message);
@@ -106,7 +103,7 @@ function Login() {
               {/* submit button  */}
               <button
                 type="submit"
-                className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-1.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 border border-white"
+                className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-1.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 border border-white"
               >
                 Login
               </button>
