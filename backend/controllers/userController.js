@@ -2,6 +2,9 @@ import { Message } from "../models/messageModel.js";
 import { User } from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
+const isProduction = process.env.NODE_ENV === "production";
+
 //Controllers me hamesha buisness logic rakhte hai..
 export const register=async(req,res)=>{
     try{
@@ -75,8 +78,13 @@ export const login=async(req,res)=>{
             userId: user._id,
         }
         const token= await jwt.sign(tokenData, process.env.JWT_SECURITY_KEY,{expiresIn: '1d'});
-        return res.status(200).cookie("token", token, {maxAge: 1 * 24 * 60 * 60 * 1000,httpOnly: true,secure: false,
-sameSite: "lax",}).json({
+        return res.status(200).cookie("token", token, {
+            maxAge: 1 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            path: "/",
+        }).json({
             _id: user._id,
             username: user.username,
             fullname: user.fullname,
@@ -92,7 +100,13 @@ sameSite: "lax",}).json({
 
 export const logout=async(req,res)=>{
     try{
-        return res.status(200).cookie("token", "", {maxAge: 0,httpOnly: true,secure: true,sameSite: "none",}).json({
+        return res.status(200).cookie("token", "", {
+            maxAge: 0,
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            path: "/",
+        }).json({
             message:"User logged Out successfully."
         })
     }catch(err){

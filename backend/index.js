@@ -14,6 +14,12 @@ import path from "path";
 
 dotenv.config();
 const PORT = process.env.PORT || 8080;
+const isProduction = process.env.NODE_ENV === "production";
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
 
 const app = express();
 const server = http.createServer(app);
@@ -24,8 +30,13 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 app.use(cors({
-  // origin: process.env.CLIENT_URL,
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 
@@ -38,8 +49,7 @@ app.use("/api/v1/group-message", groupMessageRouter);
 // socket.io
 export const io = new Server(server, {
   cors: {
-    // origin: process.env.CLIENT_URL,
-    origin:  "*",
+    origin: allowedOrigins,
     credentials: true,
   },
 });
