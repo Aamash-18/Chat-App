@@ -15,11 +15,37 @@ import path from "path";
 dotenv.config();
 const PORT = process.env.PORT || 8080;
 const isProduction = process.env.NODE_ENV === "production";
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "http://localhost:5173",
-  "http://localhost:3000",
-].filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+
+  const allowedOrigins = [
+    process.env.CLIENT_URL,
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+  ].filter(Boolean);
+
+  if (allowedOrigins.includes(origin)) return true;
+  if (origin.includes(".vercel.app")) return true;
+  if (origin.includes(".onrender.com")) return true;
+
+  return false;
+};
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
 const app = express();
 const server = http.createServer(app);
@@ -29,16 +55,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-}));
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // routes
 app.use("/api/v1/user", userRouter);
@@ -49,7 +67,13 @@ app.use("/api/v1/group-message", groupMessageRouter);
 // socket.io
 export const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
   },
 });
