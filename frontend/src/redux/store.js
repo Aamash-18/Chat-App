@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user", "messages"],
+  whitelist: ["user", "messages","group"],
   blacklist: ["socket"], // ✅ ADD THIS
 };
 
