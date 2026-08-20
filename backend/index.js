@@ -1,3 +1,4 @@
+dotenv.config();
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/database.js";
@@ -12,7 +13,6 @@ import { Server } from "socket.io";
 import path from "path";
 
 
-dotenv.config();
 const PORT = process.env.PORT || 8080;
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -54,6 +54,7 @@ const server = http.createServer(app);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+// Keep old local uploads readable while new files use Cloudinary.
 app.use("/uploads", express.static("uploads"));
 app.use(cors(corsOptions));
 

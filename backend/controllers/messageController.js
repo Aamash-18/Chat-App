@@ -2,6 +2,7 @@ import { getReceiverSocketId } from "../index.js";
 import { conversation } from "../models/conversationModel.js";
 import { Message } from "../models/messageModel.js";
 import { io } from "../index.js";
+import { uploadToCloudinary } from "../middleware/upload.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -14,7 +15,10 @@ export const sendMessage = async (req, res) => {
     let fileType = "";
 
     if (req.file) {
-      fileUrl = `/uploads/${req.file.filename}`;
+      const uploadedFile = await uploadToCloudinary(
+        req.file.buffer,
+      );
+      fileUrl = uploadedFile.secure_url;
       fileType = req.file.mimetype;
     }
 

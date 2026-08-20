@@ -1,5 +1,6 @@
 import { GroupMessage } from "../models/groupMessageModel.js";
 import { io } from "../index.js";
+import { uploadToCloudinary } from "../middleware/upload.js";
 
 export const sendGroupMessage = async (req, res) => {
   try {
@@ -11,7 +12,10 @@ export const sendGroupMessage = async (req, res) => {
     let fileType = "";
 
     if (req.file) {
-      fileUrl = `/uploads/${req.file.filename}`;
+      const uploadedFile = await uploadToCloudinary(
+        req.file.buffer,
+      );
+      fileUrl = uploadedFile.secure_url;
       fileType = req.file.mimetype;
     }
 
