@@ -27,7 +27,9 @@ const Message = (props) => {
   const isOwnMessage = authUser?._id === senderId;
 
   const fileUrl = props.message.fileUrl
-    ? `${API_BASE_URL}${props.message.fileUrl}`
+    ? props.message.fileUrl.startsWith("http")
+      ? props.message.fileUrl
+      : `${API_BASE_URL}${props.message.fileUrl}`
     : null;
 
   return (
