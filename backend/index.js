@@ -11,6 +11,12 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
+import {
+  broadcastOnlineUsers,
+  initializeRedis,
+  markUserOffline,
+  markUserOnline,
+} from "./config/redis.js";
 
 
 const PORT = process.env.PORT || 8080;
@@ -22,8 +28,10 @@ const isAllowedOrigin = (origin) => {
   const allowedOrigins = [
     process.env.CLIENT_URL,
     "http://localhost:5173",
+    "http://localhost:5174",
     "http://localhost:3000",
     "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
     "http://127.0.0.1:3000",
   ].filter(Boolean);
 
@@ -78,17 +86,17 @@ export const io = new Server(server, {
   },
 });
 
-const userSocketMap={};
-
-export const getReceiverSocketId=(userId)=>{
-    return userSocketMap[userId];
-}
+let redisClient;
 
 io.on("connection", (socket) => {
   console.log("New Device Connected:", socket.id);
-  const userId=socket.handshake.query.userId;
-  if(userId!== undefined){
-      userSocketMap[userId]=socket.id;
+  const userId = socket.handshake.query.userId;
+
+  if (userId) {
+    socket.join(`user:${userId}`);
+    markUserOnline(redisClient, userId, socket.id)
+      .then(() => broadcastOnlineUsers(io, redisClient))
+      .catch((error) => console.error("Redis presence error:", error.message));
   }
 
    // ✅ JOIN GROUP ROOM
@@ -101,22 +109,29 @@ io.on("connection", (socket) => {
     socket.leave(groupId);
   });
   
-  io.emit('getOnlineUsers',Object.keys(userSocketMap));
-  
-  socket.on('disconnect',()=>{
-    
+  socket.on("disconnect", () => {
     console.log(`User Disconected ${socket.id}`);
-    if(userId){
-      delete userSocketMap[userId];
-    }
-    io.emit('getOnlineUsers',Object.keys(userSocketMap));
-  })
-});
 
-// ✅ ONLY THIS should listen
-connectDB().then(() => {
-  server.listen(PORT, () => {
-    console.log(`Server running at PORT ${PORT}`);
+    if (userId) {
+      markUserOffline(redisClient, userId, socket.id)
+        .then(() => broadcastOnlineUsers(io, redisClient))
+        .catch((error) => console.error("Redis presence error:", error.message));
+    }
   });
 });
+
+const startServer = async () => {
+  try {
+    redisClient = await initializeRedis(io);
+    await connectDB();
+    server.listen(PORT, () => {
+      console.log(`Server running at PORT ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Server startup error:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
 

@@ -1,4 +1,3 @@
-import { getReceiverSocketId } from "../index.js";
 import { conversation } from "../models/conversationModel.js";
 import { Message } from "../models/messageModel.js";
 import { io } from "../index.js";
@@ -51,10 +50,7 @@ export const sendMessage = async (req, res) => {
     await getConversation.save();
 
     // ⚡ SOCKET
-    const receiverSocketId = getReceiverSocketId(recieverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
+    io.to(`user:${recieverId}`).emit("newMessage", newMessage);
 
     return res.status(200).json({ newMessage });
 
